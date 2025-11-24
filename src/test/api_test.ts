@@ -54,4 +54,27 @@ suite('requestProvider', () => {
     assert.instanceOf(error, Error);
     assert.equal((error as Error).message, 'Modal closed without connecting');
   });
+
+  test('does not resolve after rejecting on modal close, even if a connection happens later', async () => {
+    const connectedProvider = {} as WebLNProvider;
+    let resolved = false;
+    const providerPromise = requestProvider().then((provider) => {
+      resolved = true;
+      return provider;
+    });
+
+    let error: unknown;
+    store.setState({modalOpen: false});
+    try {
+      await providerPromise;
+    } catch (err) {
+      error = err;
+    }
+
+    store.setState({connected: true, provider: connectedProvider});
+    await Promise.resolve();
+
+    assert.instanceOf(error, Error);
+    assert.isFalse(resolved);
+  });
 });
