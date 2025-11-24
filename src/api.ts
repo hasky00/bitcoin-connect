@@ -135,17 +135,26 @@ export async function requestProvider(): Promise<WebLNProvider> {
     launchModal();
 
     await new Promise<void>((resolve, reject) => {
-      const unsubOnModalClosed = onModalClosed(() => {
+      let unsubOnModalClosed: () => void = () => undefined;
+      let unsubOnConnected: () => void = () => undefined;
+
+      const cleanup = () => {
         unsubOnModalClosed();
         unsubOnConnected();
+      };
+
+      unsubOnModalClosed = onModalClosed(() => {
+        cleanup();
         if (provider) {
           resolve();
+        } else {
+          reject(new Error('Modal closed without connecting'));
         }
-        // TODO: we should throw an Error object instead
-        reject('Modal closed without connecting');
       });
-      const unsubOnConnected = onConnected((newProvider) => {
+      unsubOnConnected = onConnected((newProvider) => {
         provider = newProvider;
+        cleanup();
+        resolve();
       });
     });
     if (!provider) {
