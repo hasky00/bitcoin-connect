@@ -14,6 +14,8 @@ export class CurrencySwitcher extends withTwind()(BitcoinConnectElement) {
   @state() _isSwitchingCurrency = false;
   @state() _selectedCurrency: string | undefined;
 
+  private _unsubscribe?: () => void;
+
   static override styles = [
     ...super.styles,
     css`
@@ -51,10 +53,14 @@ export class CurrencySwitcher extends withTwind()(BitcoinConnectElement) {
     super();
     this._selectedCurrency = store.getState().currency;
 
-    // TODO: handle unsubscribe
-    store.subscribe((currentState) => {
+    this._unsubscribe = store.subscribe((currentState) => {
       this._selectedCurrency = currentState.currency;
     });
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    this._unsubscribe?.();
   }
 
   override render() {

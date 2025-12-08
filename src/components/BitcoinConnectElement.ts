@@ -32,6 +32,8 @@ export class BitcoinConnectElement extends InternalElement {
   @state()
   protected _route: Route;
 
+  private _unsubscribe?: () => void;
+
   constructor() {
     super();
     this._connected = store.getState().connected;
@@ -44,8 +46,7 @@ export class BitcoinConnectElement extends InternalElement {
     this._route = store.getState().route;
     this._modalOpen = store.getState().modalOpen;
 
-    // TODO: handle unsubscribe
-    store.subscribe((currentState) => {
+    this._unsubscribe = store.subscribe((currentState) => {
       this._connected = currentState.connected;
       this._connecting = currentState.connecting;
       this._connectorName = currentState.connectorName;
@@ -56,5 +57,10 @@ export class BitcoinConnectElement extends InternalElement {
       this._route = currentState.route;
       this._modalOpen = currentState.modalOpen;
     });
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    this._unsubscribe?.();
   }
 }

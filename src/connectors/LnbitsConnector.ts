@@ -149,7 +149,6 @@ export class LnbitsWebLNProvider implements WebLNProvider {
     args?: Record<string, unknown>
   ) {
     let body = null;
-    const query = '';
     const headers = new Headers();
     headers.append('Accept', 'application/json');
     headers.append('Content-Type', 'application/json');
@@ -159,16 +158,14 @@ export class LnbitsWebLNProvider implements WebLNProvider {
       body = JSON.stringify(args);
     } else if (args !== undefined) {
       throw new Error('TODO: support args in GET');
-      // query = ...
     }
-    const res = await fetch(this._instanceUrl + path + query, {
+    const res = await fetch(this._instanceUrl + path, {
       method,
       headers,
       body,
     });
     if (!res.ok) {
       const errBody = await res.json();
-      console.error('errBody', errBody);
       throw new Error(errBody.detail);
     }
     return (await res.json()) as T;

@@ -50,10 +50,7 @@ export class LNCConnector extends Connector {
     try {
       const hasPreviouslyConnected = !lnc.credentials.pairingPhrase;
       if (hasPreviouslyConnected) {
-        console.log('Pairing phrase does not exist');
         lnc.credentials.password = lncPassword;
-      } else {
-        console.log('Pairing phrase set');
       }
       await lnc.connect();
 
@@ -62,13 +59,11 @@ export class LNCConnector extends Connector {
       }
 
       while (!lnc.isConnected) {
-        console.log('Waiting to connect...');
         await new Promise((resolve) => {
           setTimeout(resolve, 100);
         });
       }
     } catch (error) {
-      console.error(error);
       lnc.disconnect();
       lnc.credentials.clear();
       throw error;

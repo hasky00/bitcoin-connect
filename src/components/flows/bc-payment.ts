@@ -50,11 +50,12 @@ export class SendPaymentFlow extends withTwind()(BitcoinConnectElement) {
   @state()
   _showConnect = false;
 
+  private _unsubscribe?: () => void;
+
   constructor() {
     super();
 
-    // TODO: handle unsubscribe
-    store.subscribe((currentStore, prevStore) => {
+    this._unsubscribe = store.subscribe((currentStore, prevStore) => {
       if (
         currentStore.connected !== prevStore.connected &&
         currentStore.connected
@@ -62,6 +63,11 @@ export class SendPaymentFlow extends withTwind()(BitcoinConnectElement) {
         this._showConnect = false;
       }
     });
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    this._unsubscribe?.();
   }
 
   override render() {

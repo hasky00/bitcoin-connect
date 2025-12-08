@@ -21,6 +21,8 @@ export class Button extends withTwind()(BitcoinConnectElement) {
   @state()
   protected _showBalance: boolean | undefined = undefined;
 
+  private _unsubscribe?: () => void;
+
   constructor() {
     super();
 
@@ -28,11 +30,15 @@ export class Button extends withTwind()(BitcoinConnectElement) {
       store.getState().bitcoinConnectConfig.showBalance &&
       store.getState().supports('getBalance');
 
-    // TODO: handle unsubscribe
-    store.subscribe((store) => {
+    this._unsubscribe = store.subscribe((store) => {
       this._showBalance =
         store.bitcoinConnectConfig.showBalance && store.supports('getBalance');
     });
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback();
+    this._unsubscribe?.();
   }
 
   override render() {
